@@ -1,0 +1,82 @@
+openapi: 3.0.3
+info:
+  title: Mathdemo
+  description: Evaluates math expressions
+  contact:
+    email: mathdemo@digicow.net
+  version: 1.0.0
+servers:
+  - url: https://mathdemo.digicowsoftware.com/api/v1
+security: []
+paths:
+  /echo:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/Expression"
+      summary: returns the given expression without evaluation
+      x-mojo-to: "Expression#echo"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expression"
+  /eval:
+    post:
+      summary: Evaluate a simple math expression
+      x-mojo-to: "Expression#evaluate"
+      requestBody:
+        description: The expression to evaluate
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Expression"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvaluationResult"
+        400:
+          description: Unparsable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvaluationError"
+components:
+  parameters:
+    Expression:
+      in: query
+      name: expression
+      required: true
+      schema:
+        type: string
+  schemas:
+    Expression:
+      type: object
+      additionalProperties: false
+      properties:
+        expression:
+          type: string
+          minLength: 1
+    EvaluationResult:
+      type: object
+      additionalProperties: false
+      properties:
+        given:
+          $ref: "#/components/schemas/Expression"
+        result:
+          type: number
+    EvaluationError:
+      type: object
+      additionalProperties: false
+      properties:
+        expression:
+          $ref: "#/components/schemas/Expression"
+        errors:
+          type: array
+          items:
+            type: string
